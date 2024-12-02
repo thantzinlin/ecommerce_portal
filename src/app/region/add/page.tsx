@@ -10,7 +10,7 @@ const AddRegionPage = () => {
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Add Category" />
+      <Breadcrumb pageName="Add Region" />
 
       <div className="flex flex-col gap-10">
         <RegionForm id="" />

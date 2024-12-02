@@ -5,7 +5,7 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 const RegionListPage = () => {
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Categories" />
+      <Breadcrumb pageName="Region" />
       <div className="flex flex-col gap-10">
         <RegionList />
       </div>

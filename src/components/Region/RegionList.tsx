@@ -7,16 +7,18 @@ import Pagination from "../Pagination";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
-interface Category {
+interface Township {
   _id: string;
   name: string;
-  description: string;
+  cityId: {
+    name: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
 
 const RegionList = () => {
-  const [categoryData, setCategoryData] = useState<Category[]>([]);
+  const [townshipData, setTownshipData] = useState<Township[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -24,16 +26,16 @@ const RegionList = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchTownships = async () => {
       try {
         setLoading(true);
         const response = await httpGet(
-          `categories?page=${currentPage}&perPage=${perPage}`,
+          `townships?page=${currentPage}&perPage=${perPage}`,
         );
         if (response.data.data.length < 1) {
-          router.push("categories/add");
+          router.push("region/add");
         }
-        setCategoryData(response.data.data);
+        setTownshipData(response.data.data);
         setTotalPages(response.data.pageCounts);
       } catch (err) {
         console.error(err);
@@ -42,7 +44,7 @@ const RegionList = () => {
         setLoading(false);
       }
     };
-    fetchCategories();
+    fetchTownships();
   }, [currentPage, perPage]);
 
   const handlePageChange = (page: number, perPage: number) => {
@@ -62,13 +64,13 @@ const RegionList = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await httpDelete(`categories/${id}`);
-          setCategoryData((prevData) =>
-            prevData.filter((category) => category._id !== id),
+          await httpDelete(`townships/${id}`);
+          setTownshipData((prevData) =>
+            prevData.filter((township) => township._id !== id),
           );
-          Swal.fire("Deleted!", "Your category has been deleted.", "success");
+          Swal.fire("Deleted!", "Your Region has been deleted.", "success");
         } catch (error) {
-          console.error("Failed to delete category", error);
+          console.error("Failed to delete Region", error);
           handleError(error, router);
         } finally {
           setLoading(false);
@@ -83,7 +85,7 @@ const RegionList = () => {
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="flex justify-between px-4 py-6 md:px-6 xl:px-7.5">
         <h4 className="text-xl font-semibold text-black dark:text-white">
-          Category List
+          Region List
         </h4>
         <Link href="/region/add">
           <button className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
@@ -95,26 +97,28 @@ const RegionList = () => {
       <table className="min-w-full divide-y divide-stroke">
         <thead>
           <tr>
-            <th className="px-4 py-2 text-left font-semibold">Category Name</th>
-            <th className="px-4 py-2 text-left font-semibold">Description</th>
+            <th className="px-4 py-2 text-left font-semibold">Twonship </th>
+            <th className="px-4 py-2 text-left font-semibold">City </th>
+
             <th className="px-4 py-2 text-left font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {categoryData.map((category) => (
-            <tr key={category._id} className="border-t border-stroke">
-              <td className="px-4 py-2">{category.name}</td>
-              <td className="px-4 py-2">{category.description}</td>
+          {townshipData.map((township) => (
+            <tr key={township._id} className="border-t border-stroke">
+              <td className="px-4 py-2">{township.name}</td>
+              <td className="px-4 py-2">{township.cityId.name}</td>
+
               <td className="px-4 py-2">
                 <div className="flex space-x-2">
-                  <Link href={`/categories/edit?_id=${category._id}`}>
+                  <Link href={`/region/edit?_id=${township._id}`}>
                     <button className="text-blue-500 hover:text-blue-600">
                       Edit
                     </button>
                   </Link>
                   <button
                     className="text-red-500 hover:text-red-600"
-                    onClick={() => handleDelete(category._id)}
+                    onClick={() => handleDelete(township._id)}
                   >
                     Delete
                   </button>
