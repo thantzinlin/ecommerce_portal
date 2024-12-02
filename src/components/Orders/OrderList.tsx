@@ -7,6 +7,13 @@ import Pagination from "../Pagination";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
+interface Address {
+  city: string;
+  township: string;
+  street: string;
+  postalCode: string;
+}
+
 interface Product {
   quantity: number;
   price: number;
@@ -16,12 +23,12 @@ interface Order {
   _id: string;
   orderNumber: string;
   userId: string;
-  username: String;
+  username: string;
   products: Product;
   totalPrice: number;
   orderStatus: string;
   orderDate: string;
-  shippingAddress: string;
+  shippingAddress: Address;
   paymentMethod: string;
 }
 
@@ -42,11 +49,9 @@ const OrderList = () => {
         );
         setOrderData(response.data.data);
         setTotalPages(response.data.pageCounts);
-        // setLoading(false);
       } catch (err) {
         console.error(err);
         setLoading(false);
-
         handleError(err, router);
       } finally {
         setLoading(false);
@@ -58,32 +63,6 @@ const OrderList = () => {
   const handlePageChange = (page: number, perPage: number) => {
     setCurrentPage(page);
     setPerPage(perPage);
-  };
-
-  const handleDelete = (id: string) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await httpDelete(`orders/${id}`);
-          setOrderData((prevData) =>
-            prevData.filter((order) => order._id !== id),
-          );
-          Swal.fire("Deleted!", "Order has been deleted.", "success");
-        } catch (error) {
-          console.error("Failed to delete order", error);
-          setLoading(false);
-          handleError(error, router);
-        }
-      }
-    });
   };
 
   if (loading) return <p>Loading...</p>;
@@ -117,7 +96,18 @@ const OrderList = () => {
             <tr key={order._id} className="border-t border-stroke">
               <td className="px-4 py-2">{order.orderNumber}</td>
               <td className="px-4 py-2">{order.username}</td>
-              <td className="px-4 py-2">{order.shippingAddress}</td>
+              <td className="px-4 py-2">
+                {order.shippingAddress && (
+                  <>
+                    <p>{order.shippingAddress.street}</p>
+                    <p>
+                      {order.shippingAddress.township},{" "}
+                      {order.shippingAddress.city}
+                    </p>
+                    <p>{order.shippingAddress.postalCode}</p>
+                  </>
+                )}
+              </td>
               <td className="px-4 py-2">{order.totalPrice.toFixed(2)}</td>
               <td className="px-4 py-2">{order.paymentMethod}</td>
               <td className="px-4 py-2">{order.orderStatus}</td>
@@ -128,12 +118,6 @@ const OrderList = () => {
                       View
                     </button>
                   </Link>
-                  <button
-                    className="text-red-500 hover:text-red-600"
-                    onClick={() => handleDelete(order._id)}
-                  >
-                    Delete
-                  </button>
                 </div>
               </td>
             </tr>

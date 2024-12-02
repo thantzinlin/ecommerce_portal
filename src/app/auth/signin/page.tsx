@@ -22,10 +22,11 @@ const SignIn: React.FC = () => {
     e.preventDefault(); // Prevent default form submission
 
     try {
-      const response = await httpPost("auth/login", { email, password });
+      const response = await httpPost("auth/login", { phone: email, password });
 
       if (response.data.returncode === "200") {
-        localStorage.setItem("token", response.data.token);
+        console.log("access token: " + response.data.data.token);
+        localStorage.setItem("token", response.data.data.token);
         // login();
         router.push("/");
       } else {
@@ -85,7 +86,7 @@ const SignIn: React.FC = () => {
               Email
             </label>
             <input
-              type="email"
+              type="text"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
