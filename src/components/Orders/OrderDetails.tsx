@@ -15,6 +15,13 @@ interface Product {
   size: string;
 }
 
+interface Address {
+  city: string;
+  township: string;
+  street: string;
+  postalCode: string;
+}
+
 interface Order {
   _id: string;
   orderNumber: string;
@@ -28,7 +35,7 @@ interface Order {
   totalPrice: number;
   orderStatus: string;
   orderDate: string;
-  shippingAddress: string;
+  shippingAddress: Address;
   paymentMethod: string;
 }
 
@@ -145,7 +152,16 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
       <div className="flex justify-between border-t pt-4">
         <div className="text-left">
           <p className="font-semibold text-gray-600">
-            Shipping Address: {order.shippingAddress}
+            Shipping Address:{" "}
+            {order.shippingAddress && (
+              <>
+                <p>{order.shippingAddress.street}</p>
+                <p>
+                  {order.shippingAddress.township}, {order.shippingAddress.city}
+                </p>
+                <p>{order.shippingAddress.postalCode}</p>
+              </>
+            )}
           </p>
           <p className="text-gray-600">Payment Method: {order.paymentMethod}</p>
           <p className="text-gray-600">Order Date: {order.orderDate}</p>

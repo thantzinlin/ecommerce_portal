@@ -4,11 +4,9 @@ import ClickOutside from "@/components/ClickOutside";
 import { io } from "socket.io-client";
 import { httpGet } from "@/utils/apiClient";
 
-const socket = io("http://localhost:5000");
-
 const DropdownNotification = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notifying, setNotifying] = useState(false); // Indicates if a new notification has arrived
+  const [notifying, setNotifying] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const [notifications, setNotifications] = useState<any[]>([]);
 
@@ -18,13 +16,20 @@ const DropdownNotification = () => {
       setNotificationCount(response.data.total);
       setNotifications(response.data.data);
 
-      console.log("Fetched notifications:", response.data.data); // Log the fetched notifications
+      console.log("Fetched notifications:", response.data.data);
     } catch (error) {
       console.error("Failed to fetch notification count:", error);
     }
   };
 
   useEffect(() => {
+    const socket = io("http://localhost:5000");
+    const storedCount = localStorage.getItem("notificationCount");
+
+    if (storedCount) {
+      setNotificationCount(Number(storedCount));
+    }
+
     socket.on("connect", () => {
       console.log("Socket connected, joining adminRoom...");
       socket.emit("joinRoom", "adminRoom");
