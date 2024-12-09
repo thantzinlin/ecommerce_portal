@@ -14,8 +14,13 @@ export async function httpPost<T>(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
+    // "Content-Type": "application/json",
+    // Authorization: `Bearer ${getToken()}`,
     "Content-Type": "application/json",
-    Authorization: `Bearer ${getToken()}`,
+    Accept: "application/json, text/plain, */*",
+    Authorization: `Bearer ${getToken() || ""}`,
+    Origin: "https://orange-dune-065c3b710.4.azurestaticapps.net", // Replace with the actual client origin
+    Referer: "https://orange-dune-065c3b710.4.azurestaticapps.net/",
   };
 
   console.log(`[${url}] method: POST`);
