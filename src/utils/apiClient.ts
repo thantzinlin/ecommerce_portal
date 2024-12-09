@@ -14,6 +14,7 @@ export async function httpPost<T>(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
+    "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,
   };
 
@@ -42,6 +43,7 @@ export async function httpPut<T>(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
+    "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,
   };
 
@@ -70,6 +72,7 @@ export async function httpPatch<T>(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
+    "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,
   };
 
@@ -97,6 +100,7 @@ export async function httpGet(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
+    "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,
   };
 
@@ -119,6 +123,7 @@ export async function httpDelete(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
+    "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,
   };
 
