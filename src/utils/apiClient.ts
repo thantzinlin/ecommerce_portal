@@ -14,13 +14,7 @@ export async function httpPost<T>(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
-    // "Content-Type": "application/json",
-    // Authorization: `Bearer ${getToken()}`,
-    "Content-Type": "application/json",
-    Accept: "application/json, text/plain, */*",
-    Authorization: `Bearer ${getToken() || ""}`,
-    Origin: "https://orange-dune-065c3b710.4.azurestaticapps.net", // Replace with the actual client origin
-    Referer: "https://orange-dune-065c3b710.4.azurestaticapps.net/",
+    Authorization: `Bearer ${getToken()}`,
   };
 
   console.log(`[${url}] method: POST`);
@@ -48,7 +42,6 @@ export async function httpPut<T>(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
-    "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,
   };
 
@@ -77,7 +70,6 @@ export async function httpPatch<T>(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
-    "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,
   };
 
@@ -105,7 +97,6 @@ export async function httpGet(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
-    "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,
   };
 
@@ -128,7 +119,6 @@ export async function httpDelete(
   config: AxiosRequestConfig = {},
 ): Promise<AxiosResponse<any>> {
   const headers = {
-    "Content-Type": "application/json",
     Authorization: `Bearer ${getToken()}`,
   };
 

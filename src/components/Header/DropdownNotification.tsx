@@ -23,34 +23,34 @@ const DropdownNotification = () => {
   };
 
   useEffect(() => {
-    const socket = io("http://localhost:5000");
+    //const socket = io("http://localhost:5000");
     const storedCount = localStorage.getItem("notificationCount");
 
     if (storedCount) {
       setNotificationCount(Number(storedCount));
     }
 
-    socket.on("connect", () => {
-      console.log("Socket connected, joining adminRoom...");
-      socket.emit("joinRoom", "adminRoom");
-      console.log("Admin client connected and joined adminRoom");
-    });
+    // socket.on("connect", () => {
+    //   console.log("Socket connected, joining adminRoom...");
+    //   socket.emit("joinRoom", "adminRoom");
+    //   console.log("Admin client connected and joined adminRoom");
+    // });
 
-    socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error);
-    });
+    // socket.on("connect_error", (error) => {
+    //   console.error("Socket connection error:", error);
+    // });
 
-    socket.on("orderNotification", (notiData) => {
-      console.log("Received order notification:", notiData);
-      fetchNotifications();
-      setNotifying(true);
-    });
+    // socket.on("orderNotification", (notiData) => {
+    //   console.log("Received order notification:", notiData);
+    //   fetchNotifications();
+    //   setNotifying(true);
+    // });
 
-    return () => {
-      socket.off("connect");
-      socket.off("connect_error");
-      socket.off("orderNotification");
-    };
+    // return () => {
+    //   socket.off("connect");
+    //   socket.off("connect_error");
+    //   socket.off("orderNotification");
+    // };
   }, []);
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
