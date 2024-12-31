@@ -8,10 +8,13 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
 interface Category {
-  _id: string;
+  slug: string;
   name: string;
   description: string;
   createdAt: string;
+  isDeleted: boolean;
+  parentCategory: string | null;
+  children: Category[];
   updatedAt: string;
 }
 
@@ -28,10 +31,10 @@ const CategoryList = () => {
       try {
         setLoading(true);
         const response = await httpGet(
-          `categories?page=${currentPage}&perPage=${perPage}`,
+          `categories/getall?page=${currentPage}&perPage=${perPage}&isAdmin=true`,
         );
         if (response.data.data.length < 1) {
-          router.push("categories/add");
+          router.push("/categories/add");
         }
         setCategoryData(response.data.data);
         setTotalPages(response.data.pageCounts);
@@ -50,7 +53,7 @@ const CategoryList = () => {
     setPerPage(perPage);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (slug: string) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -62,9 +65,9 @@ const CategoryList = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await httpDelete(`categories/${id}`);
+          await httpDelete(`categories/${slug}`);
           setCategoryData((prevData) =>
-            prevData.filter((category) => category._id !== id),
+            prevData.filter((category) => category.slug !== slug),
           );
           Swal.fire("Deleted!", "Your category has been deleted.", "success");
         } catch (error) {
@@ -102,19 +105,19 @@ const CategoryList = () => {
         </thead>
         <tbody>
           {categoryData.map((category) => (
-            <tr key={category._id} className="border-t border-stroke">
+            <tr key={category.slug} className="border-t border-stroke">
               <td className="px-4 py-2">{category.name}</td>
               <td className="px-4 py-2">{category.description}</td>
               <td className="px-4 py-2">
                 <div className="flex space-x-2">
-                  <Link href={`/categories/edit?_id=${category._id}`}>
+                  <Link href={`/categories/edit/${category.slug}`}>
                     <button className="text-blue-500 hover:text-blue-600">
                       Edit
                     </button>
                   </Link>
                   <button
                     className="text-red-500 hover:text-red-600"
-                    onClick={() => handleDelete(category._id)}
+                    onClick={() => handleDelete(category.slug)}
                   >
                     Delete
                   </button>

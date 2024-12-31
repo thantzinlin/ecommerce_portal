@@ -1,22 +1,22 @@
-"use client";
-import { useSearchParams } from "next/navigation";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import CategoryForm from "@/components/Category/CategoryForm";
+// "use client";
+// import { useSearchParams } from "next/navigation";
+// import DefaultLayout from "@/components/Layouts/DefaultLayout";
+// import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+// import CategoryForm from "@/components/Category/CategoryForm";
 
-const AddCategoryPage = () => {
-  const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+// const AddCategoryPage = () => {
+//   const searchParams = useSearchParams();
+//   const id = searchParams.get("id");
 
-  return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Add Category" />
+//   return (
+//     <DefaultLayout>
+//       <Breadcrumb pageName="Add Category" />
 
-      <div className="flex flex-col gap-10">
-        <CategoryForm id="" />
-      </div>
-    </DefaultLayout>
-  );
-};
+//       <div className="flex flex-col gap-10">
+//         <CategoryForm slug="" />
+//       </div>
+//     </DefaultLayout>
+//   );
+// };
 
-export default AddCategoryPage;
+// export default AddCategoryPage;
