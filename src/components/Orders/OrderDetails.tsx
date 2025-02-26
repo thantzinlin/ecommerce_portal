@@ -89,8 +89,16 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
     }
   };
 
-  if (loading) return <p className="text-center">Loading...</p>;
-  if (!order) return <p className="text-center">Order not found.</p>;
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="relative">
+        <div className="h-24 w-24 rounded-full border-t-4 border-b-4 border-blue-500 animate-spin"></div>
+        <div className="mt-4 text-center text-xl font-semibold text-gray-700 dark:text-gray-300">
+          Loading...
+        </div>
+      </div>
+    </div>
+  );  if (!order) return <p className="text-center">Order not found.</p>;
 
   return (
     <div className="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">

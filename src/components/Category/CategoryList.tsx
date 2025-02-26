@@ -8,9 +8,11 @@ import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 
 interface Category {
+  _id: string;
   slug: string;
   name: string;
   description: string;
+  image: string;
   createdAt: string;
   isDeleted: boolean;
   parentCategory: string | null;
@@ -27,32 +29,30 @@ const CategoryList = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        const response = await httpGet(
-          `categories/getall?page=${currentPage}&perPage=${perPage}&isAdmin=true`,
-        );
-        if (response.data.data.length < 1) {
-          router.push("/categories/add");
-        }
-        setCategoryData(response.data.data);
-        setTotalPages(response.data.pageCounts);
-      } catch (err) {
-        console.error(err);
-        handleError(err, router);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchCategories();
   }, [currentPage, perPage]);
-
-  const handlePageChange = (page: number, perPage: number) => {
-    setCurrentPage(page);
-    setPerPage(perPage);
+  
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await httpGet(
+        `categories/getall?page=${currentPage}&perPage=${perPage}&isAdmin=true`,
+      );
+  
+      if (response.data.data.length < 1) {
+        router.push("/categories/add");
+      }
+  
+      setCategoryData(response.data.data);
+      setTotalPages(response.data.pageCounts);
+    } catch (err) {
+      console.error(err);
+      handleError(err, router);
+    } finally {
+      setLoading(false);
+    }
   };
-
+  
   const handleDelete = (slug: string) => {
     Swal.fire({
       title: "Are you sure?",
@@ -65,11 +65,12 @@ const CategoryList = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+          setLoading(true);
           await httpDelete(`categories/${slug}`);
-          setCategoryData((prevData) =>
-            prevData.filter((category) => category.slug !== slug),
-          );
+  
           Swal.fire("Deleted!", "Your category has been deleted.", "success");
+  
+          fetchCategories();
         } catch (error) {
           console.error("Failed to delete category", error);
           handleError(error, router);
@@ -79,9 +80,22 @@ const CategoryList = () => {
       }
     });
   };
-
-  if (loading) return <p>Loading...</p>;
-
+  
+  const handlePageChange = (page: number, perPage: number) => {
+    setCurrentPage(page);
+    setPerPage(perPage);
+  };
+  
+if (loading) return (
+  <div className="flex h-screen items-center justify-center">
+    <div className="relative">
+      <div className="h-24 w-24 rounded-full border-t-4 border-b-4 border-blue-500 animate-spin"></div>
+      <div className="mt-4 text-center text-xl font-semibold text-gray-700 dark:text-gray-300">
+        Loading...
+      </div>
+    </div>
+  </div>
+);
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="flex justify-between px-4 py-6 md:px-6 xl:px-7.5">
@@ -99,6 +113,7 @@ const CategoryList = () => {
         <thead>
           <tr>
             <th className="px-4 py-2 text-left font-semibold">Category Name</th>
+            <th className="px-4 py-2 text-left font-semibold">Image</th>
             <th className="px-4 py-2 text-left font-semibold">Description</th>
             <th className="px-4 py-2 text-left font-semibold">Actions</th>
           </tr>
@@ -107,6 +122,11 @@ const CategoryList = () => {
           {categoryData.map((category) => (
             <tr key={category.slug} className="border-t border-stroke">
               <td className="px-4 py-2">{category.name}</td>
+              <td className="px-4 py-2">
+                {category.image && (
+                  <img src={category.image} alt={category.name} className="w-15 h-15" />
+                )}
+              </td>
               <td className="px-4 py-2">{category.description}</td>
               <td className="px-4 py-2">
                 <div className="flex space-x-2">
@@ -117,7 +137,7 @@ const CategoryList = () => {
                   </Link>
                   <button
                     className="text-red-500 hover:text-red-600"
-                    onClick={() => handleDelete(category.slug)}
+                    onClick={() => handleDelete(category._id)}
                   >
                     Delete
                   </button>

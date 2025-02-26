@@ -20,14 +20,18 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
   const router = useRouter();
 
   const [category, setCategory] = useState<{
+    _id: string;
     name: string;
     slug: string;
     description: string;
+    image?: string;
     parentCategory: string | null;
   }>({
+    _id: "",
     name: "",
     slug: "",
     description: "",
+    image: "",
     parentCategory: null,
   });
 
@@ -92,12 +96,27 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCategory((prev) => ({
+          ...prev,
+          image: reader.result as string, // Base64 string
+        }));
+      };
+      reader.readAsDataURL(file); // Convert image to Base64 string
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
     try {
       const response = slug
-        ? await httpPut(`categories/${slug}`, category) // Use `slug` for updates
+        ? await httpPut(`categories/${category._id}`, category) // Use `slug` for updates
         : await httpPost("categories", category);
 
       Swal.fire({
@@ -120,6 +139,16 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
     label: cat.name,
   }));
 
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="relative">
+        <div className="h-24 w-24 rounded-full border-t-4 border-b-4 border-blue-500 animate-spin"></div>
+        <div className="mt-4 text-center text-xl font-semibold text-gray-700 dark:text-gray-300">
+          Loading...
+        </div>
+      </div>
+    </div>
+  );
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
       <h4 className="mb-6 text-center text-2xl font-semibold">
@@ -149,6 +178,8 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
           />
         </div>
 
+
+
         <div className="flex items-center gap-4">
           <label className="w-1/4 text-sm font-medium">Parent Category</label>
           <Select
@@ -161,6 +192,45 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
             placeholder="Search..."
             className="w-3/4"
           />
+        </div>
+
+        <div className="flex items-center gap-6">
+          <label className="w-1/4 text-sm font-medium">Category Image</label>
+          <div className="w-3/4">
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center justify-center w-full">
+                <label htmlFor="dropzone-file" className="relative flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                  {category.image ? (
+                    <div className="relative w-full h-full">
+                      <img
+                        src={category.image}
+                        alt="Category preview"
+                        className="object-cover w-full h-full rounded-lg"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black bg-opacity-50 rounded-lg">
+                        <p className="text-sm text-white font-medium">Replace image</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-6">
+                      <svg className="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                      <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Upload category image</span></p>
+                    </div>
+                  )}
+                  <input
+                    id="dropzone-file"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            
+            </div>
+          </div>
         </div>
 
         <button

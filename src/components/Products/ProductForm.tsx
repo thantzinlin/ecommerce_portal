@@ -12,7 +12,7 @@ interface ProductAttribute {
 }
 
 interface ProductVariant {
-  id: string;
+  _id: string;
   attributeValues: { [key: string]: string };  // e.g., { "Size": "M", "Color": "Red" }
   sku: string;
   price: number;
@@ -51,6 +51,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
     attributes: [],
     variants: [],
   });
+  
+
+  const [ProductVariants, setProductVariants] = useState<ProductVariant[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
@@ -77,7 +80,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
     // 5. Timestamp - last 2 digits of current timestamp
     const timestamp = Date.now().toString().slice(-2);
     
-    // Build SKU parts array and filter out empty values
     const skuParts = [
       categoryPrefix,
       productIdentifier,
@@ -85,45 +87,44 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
       color,
       uniqueId,
       timestamp
-    ].filter(Boolean); // This removes empty strings
+    ].filter(Boolean); 
 
-    // Join with single hyphen
     return skuParts.join('-');
   };
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await httpGet("categories");
-        setCategories(response.data.data);
-      } catch (err) {
-        console.error("Failed to load categories", err);
-        setLoading(false);
-        handleError(err, router);
-      }
-    };
-
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       if (!id) return;
       setLoading(true);
+  
       try {
-        const response = await httpGet(`products/${id}`);
-        if (response.data.returncode === "200") {
-          response.data.data.attributes = [];
-          setProduct(response.data.data);
+        const categoriesResponse = await httpGet("categories");
+        setCategories(categoriesResponse.data.data);
+  
+        const productResponse = await httpGet(`products/${id}`);
+        if (productResponse.data.returncode === "200") {
+         setProduct(productResponse.data.data);
+          
+
+        } else {
+          console.error("Failed to load product", productResponse.data.message);
+          handleError(productResponse.data, router);
         }
       } catch (err) {
-        console.error(err);
-        setLoading(false);
+        console.error("Error fetching data:", err);
         handleError(err, router);
       } finally {
         setLoading(false);
       }
     };
+  
+    fetchData();
+  }, [id]); // Runs when `id` changes
 
-    fetchCategories();
-    fetchProduct();
-  }, [id]);
+  useEffect(() => {
+    console.log("Updated product data:", product);
+  }, [product]);
+  
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -242,7 +243,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
 
       // Create new variant
       return {
-        id: Math.random().toString(36).substr(2, 9),
+        _id: Math.random().toString(36).substr(2, 9),
         attributeValues,
         sku: generateSKU(product.name, attributeValues, product.categoryId),
         price: product.price,
@@ -291,7 +292,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
       }), {} as { [key: string]: string });
 
       return {
-        id: Math.random().toString(36).substr(2, 9),
+        _id: Math.random().toString(36).substr(2, 9),
         attributeValues: variantAttributeValues,
         sku: generateSKU(product.name, variantAttributeValues, product.categoryId),
         price: product.price,
@@ -306,11 +307,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
     }));
   };
 
-  const handleVariantChange = (variantId: string, field: keyof Omit<ProductVariant, 'id' | 'attributeValues'>, value: string | number) => {
+  const handleVariantChange = (variantId: string, field: keyof Omit<ProductVariant, '_id' | 'attributeValues'>, value: string | number) => {
     setProduct(prev => ({
       ...prev,
       variants: prev.variants.map(variant => 
-        variant.id === variantId
+        variant._id === variantId
           ? { ...variant, [field]: value }
           : variant
       )
@@ -320,7 +321,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
   const removeVariant = (variantId: string) => {
     // Filter out the deleted variant and regenerate SKUs for remaining variants
     const updatedVariants = product.variants
-      .filter(v => v.id !== variantId)
+      .filter(v => v._id !== variantId)
       .map(variant => ({
         ...variant,
         sku: generateSKU(product.name, variant.attributeValues, product.categoryId)
@@ -434,6 +435,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
       e.preventDefault();
     }
   };
+
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="relative">
+        <div className="h-24 w-24 rounded-full border-t-4 border-b-4 border-blue-500 animate-spin"></div>
+        <div className="mt-4 text-center text-xl font-semibold text-gray-700 dark:text-gray-300">
+          Loading...
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
@@ -849,7 +861,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {product.variants.map((variant) => (
-                        <tr key={variant.id} className="hover:bg-gray-50 transition-colors duration-200">
+                        <tr key={variant._id} className="hover:bg-gray-50 transition-colors duration-200">
                           {product.attributes.map(attr => (
                             <td key={attr.name} className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                               {variant.attributeValues[attr.name]}
@@ -865,7 +877,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
                                 type="number"
                                 min="0"
                                 value={variant.price}
-                                onChange={(e) => handleVariantChange(variant.id, "price", parseFloat(e.target.value))}
+                                onChange={(e) => handleVariantChange(variant._id, "price", parseFloat(e.target.value))}
                                 onKeyDown={preventNegativeInput}
                                 className="w-full rounded-lg border border-gray-300 pl-8 pr-3 py-1 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                               />
@@ -876,7 +888,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
                               type="number"
                               min="0"
                               value={variant.stockQuantity}
-                              onChange={(e) => handleVariantChange(variant.id, "stockQuantity", parseInt(e.target.value))}
+                              onChange={(e) => handleVariantChange(variant._id, "stockQuantity", parseInt(e.target.value))}
                               onKeyDown={preventNegativeInput}
                               className="w-full rounded-lg border border-gray-300 px-3 py-1 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                             />
@@ -884,7 +896,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <button
                               type="button"
-                              onClick={() => removeVariant(variant.id)}
+                              onClick={() => removeVariant(variant._id)}
                               className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-all duration-200"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
