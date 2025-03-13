@@ -7,7 +7,7 @@ import Pagination from "../Pagination";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { format } from 'date-fns';
-import { FaFileExcel, FaFilePdf, FaEye, FaFilter } from 'react-icons/fa';
+import { FaFileExcel, FaFilePdf, FaEye, FaFilter, FaSearch } from 'react-icons/fa';
 
 interface Address {
   city: string;
@@ -28,9 +28,9 @@ interface Order {
   _id: string;
   orderNumber: string;
   userId: string;
-  username: string;
+  customerName: string;
   products: Product[];
-  totalPrice: number;
+  totalAmount: number;
   orderStatus: string;
   orderDate: string;
   shippingAddress: Address;
@@ -39,47 +39,64 @@ interface Order {
 }
 
 const OrderList = () => {
-  const [orderData, setOrderData] = useState<Order[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [orderData, setOrderData] = useState<  Order[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [perPage, setPerPage] = useState<number>(10);
   const [filters, setFilters] = useState({
-    dateRange: 'all',
-    status: 'all',
-    paymentStatus: 'all',
+    fromDate: '',
+    toDate: '',
+    orderStatus: '',
+    paymentStatus: '',
     search: ''
   });
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const queryParams = new URLSearchParams({
-          page: currentPage.toString(),
-          perPage: perPage.toString(),
-          ...filters
-        });
-        
-        const response = await httpGet(`orders?${queryParams.toString()}`);
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        page: currentPage.toString(),
+        perPage: perPage.toString(),
+        ...filters
+      });
+      
+      const response = await httpGet(`orders?${queryParams.toString()}`);
+      if(response.data ) {
         setOrderData(response.data.data);
         setTotalPages(response.data.pageCounts);
-      } catch (err) {
-        handleError(err, router);
-      } finally {
-        setLoading(false);
+      } else {
+        setOrderData([]);
+        setTotalPages(0);
+        Swal.fire({
+          icon: 'info',
+          title: 'No Data',
+          text: 'Data not found.'
+        });
       }
-    };
+     
+    } catch (err) {
+      handleError(err, router);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
     fetchOrders();
-  }, [currentPage, perPage, filters]);
+  }, [currentPage, perPage]); // Only reload on page changes
 
   const handlePageChange = (page: number, perPage: number) => {
     setCurrentPage(page);
     setPerPage(perPage);
   };
 
-  
+  const handleSearch = () => {
+    fetchOrders();
+  };
+
   const handleDownloadReport = async (format: 'excel' | 'pdf') => {
     try {
       setLoading(true);
@@ -88,6 +105,15 @@ const OrderList = () => {
         `orders/report/${format}?${queryParams.toString()}`, 
         { responseType: 'blob' }
       );
+
+      if(response.status === 204) { 
+        Swal.fire({
+          icon: 'info',
+          title: 'No Data',
+          text: 'Data not fount.'
+        });
+        return;
+      }
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -105,12 +131,8 @@ const OrderList = () => {
         text: `Orders report has been downloaded successfully!`
       });
     } catch (err) {
-      console.error(err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to download report. Please try again.'
-      });
+
+      handleError(err, router);
     } finally {
       setLoading(false);
     }
@@ -134,7 +156,6 @@ const OrderList = () => {
       'pending': 'bg-yellow-100 text-yellow-800',
       'failed': 'bg-red-100 text-red-800'
     };
-    // Add null check for status
     const status_key = (status || '').toLowerCase() as keyof typeof colors;
     return colors[status_key] || 'bg-gray-100 text-gray-800';
   };
@@ -154,33 +175,43 @@ const OrderList = () => {
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="p-4 md:p-6 xl:p-7.5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <h4 className="text-xl font-semibold text-black dark:text-white">
-            Order List
-          </h4>
-          
           <div className="flex flex-wrap gap-3">
-            <select
+            <input
+              type="date"
               className="px-3 py-2 border rounded-md text-sm"
-              value={filters.dateRange}
-              onChange={(e) => setFilters(prev => ({ ...prev, dateRange: e.target.value }))}
-            >
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-            </select>
+              value={filters.fromDate}
+              onChange={(e) => setFilters(prev => ({ ...prev, fromDate: e.target.value }))}
+            />
+
+            <input
+              type="date"
+              className="px-3 py-2 border rounded-md text-sm"
+              value={filters.toDate}
+              onChange={(e) => setFilters(prev => ({ ...prev, toDate: e.target.value }))}
+            />
 
             <select
               className="px-3 py-2 border rounded-md text-sm"
-              value={filters.status}
-              onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+              value={filters.orderStatus}
+              onChange={(e) => setFilters(prev => ({ ...prev, orderStatus: e.target.value }))}
             >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
               <option value="processing">Processing</option>
               <option value="shipped">Shipped</option>
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
+            </select>
+
+            <select
+              className="px-3 py-2 border rounded-md text-sm"
+              value={filters.paymentStatus}
+              onChange={(e) => setFilters(prev => ({ ...prev, paymentStatus: e.target.value }))}
+            >
+              <option value="">All Payment Status</option>
+              <option value="paid">Paid</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Failed</option>
             </select>
 
             <input
@@ -192,16 +223,23 @@ const OrderList = () => {
             />
 
             <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-2"
+            >
+              <FaSearch /> Search
+            </button>
+
+            <button
               onClick={() => handleDownloadReport('excel')}
               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center gap-2"
             >
-              <FaFileExcel /> Excel
+              <FaFileExcel /> 
             </button>
             <button
               onClick={() => handleDownloadReport('pdf')}
               className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors flex items-center gap-2"
             >
-              <FaFilePdf /> PDF
+              <FaFilePdf /> 
             </button>
           </div>
         </div>
@@ -230,14 +268,14 @@ const OrderList = () => {
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-sm">
-                      <div className="font-medium">{order.username}</div>
+                      <div className="font-medium">{order.customerName}</div>
                       <div className="text-gray-500 text-xs">
                         {order.shippingAddress.city}, {order.shippingAddress.township}
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="font-medium">${order.totalPrice.toFixed(2)}</span>
+                    <span className="font-medium">${order.totalAmount.toFixed(2)}</span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPaymentStatusColor(order.paymentStatus)}`}>
