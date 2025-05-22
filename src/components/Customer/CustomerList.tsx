@@ -59,7 +59,7 @@ const CustomerList = () => {
   };
 
   if (loading) return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex h-screen items-center justify-center ">
       <div className="relative">
         <div className="h-24 w-24 rounded-full border-t-4 border-b-4 border-blue-500 animate-spin"></div>
         <div className="mt-4 text-center text-xl font-semibold text-gray-700 dark:text-gray-300">
@@ -69,9 +69,9 @@ const CustomerList = () => {
     </div>
   );
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark min-h-screen">
       <div className="flex justify-between px-4 py-6 md:px-6 xl:px-7.5">
-        <h4 className="text-xl font-semibold text-black dark:text-white">
+        <h4 className="text-h4">
           Customer List
         </h4>
       </div>
@@ -79,19 +79,19 @@ const CustomerList = () => {
       <table className="min-w-full divide-y divide-stroke">
         <thead>
           <tr>
-            <th className="px-4 py-2 text-left font-semibold"> Name</th>
-            <th className="px-4 py-2 text-left font-semibold">Phone</th>
-            <th className="px-4 py-2 text-left font-semibold">Email</th>
-            <th className="px-4 py-2 text-left font-semibold">Address</th>
+            <th className="th"> Name</th>
+            <th className="th">Phone</th>
+            <th className="th">Email</th>
+            <th className="th">Address</th>
           </tr>
         </thead>
         <tbody>
           {customerData.map((data) => (
             <tr key={data._id} className="border-t border-stroke">
-              <td className="px-4 py-2">{data.username}</td>
-              <td className="px-4 py-2">{data.phone}</td>
-              <td className="px-4 py-2">{data.email}</td>
-              <td className="px-4 py-2">
+              <td className="td">{data.username}</td>
+              <td className="td">{data.phone}</td>
+              <td className="td">{data.email}</td>
+              <td className="td">
                 {data.address ? (
                   <>
                     {data.address.street}, {data.address.city},

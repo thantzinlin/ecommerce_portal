@@ -7,6 +7,7 @@ import Link from "next/link";
 import Pagination from "../Pagination";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import { FaSearch } from "react-icons/fa";
 
 interface Product {
   _id: string;
@@ -26,16 +27,28 @@ const ProductList = () => {
   const [loading, setLoading] = useState<boolean>(true);
   //  const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [currentPage, setCurrentPage] = useState<number>(1); // Local page state
-  const [perPage, setPerPage] = useState<number>(10); // Local perPage state
+  const [currentPage, setCurrentPage] = useState<number>(1); 
+  const [perPage, setPerPage] = useState<number>(10); 
+  const [filters, setFilters] = useState<{ search: string }>({
+    search: "",
+  });
+
   const router = useRouter();
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    
+    fetchProducts();
+  }, [currentPage, perPage]);
+
+  const handlePageChange = (page: number, perPage: number) => {
+    setCurrentPage(page);
+    setPerPage(perPage);
+  };
+  const fetchProducts = async () => {
       try {
         setLoading(true);
         const response = await httpGet(
-          `products?page=${currentPage}&perPage=${perPage}`,
+          `products?page=${currentPage}&perPage=${perPage}&search=${filters.search}`,
         );
         if (response.data.data.length < 1) {
           router.push("products/add");
@@ -50,13 +63,11 @@ const ProductList = () => {
         setLoading(false);
       }
     };
+  
+  const handleSearch = () => {
     fetchProducts();
-  }, [currentPage, perPage]);
-
-  const handlePageChange = (page: number, perPage: number) => {
-    setCurrentPage(page);
-    setPerPage(perPage);
   };
+
 
   const handleDelete = (id: string) => {
     Swal.fire({
@@ -96,32 +107,53 @@ const ProductList = () => {
   );
 
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+    <div className="rounded-sm border min-h-screen border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="flex justify-between px-4 py-6 md:px-6 xl:px-7.5">
-        <h4 className="text-xl font-semibold text-black dark:text-white">
+        <h4 className="text-h4">
           Product List
         </h4>
         <Link href="/products/add">
-          <button className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
+          <button className="btn-style">
             Add Product
           </button>
         </Link>
       </div>
 
+                <div className="flex justify-end px-4 py-6 md:px-6 xl:px-7.5">
+                  
+      
+                  <input
+                    type="text"
+                    placeholder="Search orders..."
+                    className="px-3 py-2 border rounded-md text-sm mr-2"
+                    value={filters.search}
+                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  />
+      
+                  <button
+                    onClick={handleSearch}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-2"
+                  >
+                    <FaSearch /> 
+                  </button>
+      
+                 
+                </div>
+
       <table className="min-w-full divide-y divide-stroke">
         <thead>
           <tr>
-            <th className="px-4 py-2 text-left font-semibold">Product</th>
-            <th className="px-4 py-2 text-left font-semibold">Category</th>
-            <th className="px-4 py-2 text-left font-semibold">Price</th>
-            <th className="px-4 py-2 text-left font-semibold">Stock</th>
-            <th className="px-4 py-2 text-left font-semibold">Actions</th>
+            <th className="th">Product</th>
+            <th className="th">Category</th>
+            <th className="th">Price</th>
+            <th className="th">Stock</th>
+            <th className="th">Actions</th>
           </tr>
         </thead>
         <tbody>
           {productData.map((product) => (
             <tr key={product._id} className="border-t border-stroke">
-              <td className="px-4 py-2">
+              <td className="td">
                 <div className="flex items-center">
                   <Image
                     src={product.images[0] || "/placeholder.png"}
@@ -133,10 +165,10 @@ const ProductList = () => {
                   <p className="ml-4">{product.name}</p>
                 </div>
               </td>
-              <td className="px-4 py-2">{product.categoryName}</td>
-              <td className="px-4 py-2">{product.price}</td>
-              <td className="px-4 py-2">{product.stockQuantity}</td>
-              <td className="px-4 py-2">
+              <td className="td">{product.categoryName}</td>
+              <td className="td">{product.price}</td>
+              <td className="td">{product.stockQuantity}</td>
+              <td className="td">
                 <div className="flex space-x-2">
                   <Link href={`/products/edit?_id=${product._id}`}>
                     <button className="text-blue-500 hover:text-blue-600">

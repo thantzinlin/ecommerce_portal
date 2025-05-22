@@ -263,3 +263,51 @@ input[type="search"]::-webkit-search-cancel-button {
 .custom-pagination-wrapper .nextui-pagination-button:hover {
   background-color: #ff6666; /* Hover effect */
 }
+
+/* styles/globals.css */
+.them-bg {
+  @apply bg-white dark:bg-boxdark;
+}
+.text-h1 {
+  @apply text-4xl font-bold text-black dark:text-white;
+}
+
+.text-h2 {
+  @apply text-3xl font-semibold text-black dark:text-white;
+}
+
+.text-h3 {
+  @apply text-2xl font-semibold text-black dark:text-white;
+}
+
+.text-h4 {
+  @apply text-xl font-semibold text-black dark:text-white;
+}
+
+.text-h5 {
+  @apply text-lg font-medium text-black dark:text-white;
+}
+
+.text-h6 {
+  @apply text-base font-medium text-black dark:text-white;
+}
+
+.text-p {
+  @apply text-base text-black dark:text-white;
+}
+
+.text-small {
+  @apply text-sm text-black dark:text-white;
+}
+.th{
+  @apply px-4 py-3 text-left text-sm font-medium  uppercase tracking-wider text-black dark:text-white;
+}
+.td{
+  @apply px-4 py-2 text-left text-sm font-medium  text-black dark:text-white;
+}
+.label {
+  @apply text-sm font-medium text-black dark:text-white;
+}
+.btn-style{
+  @apply rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600
+}

@@ -83,11 +83,11 @@ const SignIn: React.FC = () => {
         <form className="space-y-5" onSubmit={handleLogin}>
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Email
+              Phone
             </label>
             <input
               type="text"
-              placeholder="Enter your email"
+              placeholder="Enter your phone number"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full rounded-md border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"

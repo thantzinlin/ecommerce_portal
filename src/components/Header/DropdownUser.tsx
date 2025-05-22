@@ -2,9 +2,36 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ClickOutside from "@/components/ClickOutside";
+import { log } from "console";
+import { ro } from "date-fns/locale";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+    const router = useRouter();
+  
+  const clickLogout = () => {
+  Swal.fire({
+    title: "Confirm Logout",
+    text: "Are you sure you want to log out?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, log out",
+    cancelButtonText: "Cancel",
+  }).then(async (result) => {
+    if (result.isConfirmed) {   
+        localStorage.removeItem("token");
+        router.push("/auth/signin");     
+    }
+  });
+};
+
+   
+  
+  
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -128,7 +155,7 @@ const DropdownUser = () => {
               </Link>
             </li>
           </ul>
-          <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+          <button onClick={clickLogout} className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
             <svg
               className="fill-current"
               width="22"

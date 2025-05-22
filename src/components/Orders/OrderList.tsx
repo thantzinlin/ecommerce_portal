@@ -6,7 +6,7 @@ import Link from "next/link";
 import Pagination from "../Pagination";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import { FaFileExcel, FaFilePdf, FaEye, FaFilter, FaSearch } from 'react-icons/fa';
 
 interface Address {
@@ -42,6 +42,7 @@ const OrderList = () => {
   const [orderData, setOrderData] = useState<  Order[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [total, setTotaL] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [perPage, setPerPage] = useState<number>(10);
   const [filters, setFilters] = useState({
@@ -66,9 +67,11 @@ const OrderList = () => {
       if(response.data ) {
         setOrderData(response.data.data);
         setTotalPages(response.data.pageCounts);
+        setTotaL(response.data.total);
       } else {
         setOrderData([]);
         setTotalPages(0);
+        setTotaL(0);
         Swal.fire({
           icon: 'info',
           title: 'No Data',
@@ -172,7 +175,7 @@ const OrderList = () => {
   );
 
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark min-h-screen">
       <div className="p-4 md:p-6 xl:p-7.5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div className="flex flex-wrap gap-3">
@@ -208,7 +211,7 @@ const OrderList = () => {
               value={filters.paymentStatus}
               onChange={(e) => setFilters(prev => ({ ...prev, paymentStatus: e.target.value }))}
             >
-              <option value="">All Payment Status</option>
+              <option value="">All Payment</option>
               <option value="paid">Paid</option>
               <option value="pending">Pending</option>
               <option value="failed">Failed</option>
@@ -226,7 +229,7 @@ const OrderList = () => {
               onClick={handleSearch}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-2"
             >
-              <FaSearch /> Search
+              <FaSearch /> 
             </button>
 
             <button
@@ -248,25 +251,25 @@ const OrderList = () => {
           <table className="min-w-full divide-y divide-stroke">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Number</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="th">Order Number</th>
+                <th className="th">Date</th>
+                <th className="th">Customer</th>
+                <th className="th">Total</th>
+                <th className="th">Payment</th>
+                <th className="th">Status</th>
+                <th className="th">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-600">
               {orderData.map((order) => (
                 <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="font-medium">{order.orderNumber}</span>
+                  <td className="td whitespace-nowrap">
+                  {order.orderNumber}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
+                  <td className="tdwhitespace-nowrap">
                     {format(new Date(order.orderDate), 'MMM dd, yyyy HH:mm')}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="td">
                     <div className="text-sm">
                       <div className="font-medium">{order.customerName}</div>
                       <div className="text-gray-500 text-xs">
@@ -274,20 +277,20 @@ const OrderList = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className="font-medium">${order.totalAmount.toFixed(2)}</span>
+                  <td className="td whitespace-nowrap">
+                   <span className="font-medium">${order.totalAmount.toFixed(2)}</span>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
+                  <td className="td whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPaymentStatusColor(order.paymentStatus)}`}>
                       {order.paymentStatus}
                     </span>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
+                  <td className="td whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.orderStatus)}`}>
                       {order.orderStatus}
                     </span>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
+                  <td className="td whitespace-nowrap">
                     <Link 
                       href={`/orders/view?_id=${order._id}`}
                       className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
@@ -303,8 +306,8 @@ const OrderList = () => {
         </div>
 
         <div className="mt-6 flex justify-between items-center">
-          <div className="text-sm text-gray-500">
-            Showing {orderData.length} of {totalPages * perPage} orders
+          <div className="text-small">
+            Total {total} orders
           </div>
           <Pagination
             total={totalPages}

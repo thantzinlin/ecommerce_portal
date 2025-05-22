@@ -20,14 +20,14 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
   const router = useRouter();
 
   const [category, setCategory] = useState<{
-    _id: string;
+    _id: string | null;
     name: string;
     slug: string;
     description: string;
     image?: string;
     parentCategory: string | null;
   }>({
-    _id: "",
+    _id: null,
     name: "",
     slug: "",
     description: "",
@@ -112,6 +112,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     setLoading(true);
     
     try {
@@ -150,13 +151,13 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
     </div>
   );
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-      <h4 className="mb-6 text-center text-2xl font-semibold">
+    <div className="rounded-lg theme-bg border border-gray-200 p-6 shadow-md">
+      <h4 className="mb-6 text-center text-h4">
         {slug ? "Edit Category" : "New Category"}
       </h4>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center gap-4">
-          <label className="w-1/4 text-sm font-medium">Category Name</label>
+          <label className="w-1/4 label">Category Name<span className="text-red-500 ml-1">*</span></label>
           <input
             type="text"
             name="name"
@@ -168,12 +169,11 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
         </div>
 
         <div className="flex items-center gap-4">
-          <label className="w-1/4 text-sm font-medium">Description</label>
+          <label className="w-1/4 label">Description</label>
           <textarea
             name="description"
             value={category.description}
             onChange={handleChange}
-            required
             className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
           />
         </div>
@@ -181,7 +181,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
 
 
         <div className="flex items-center gap-4">
-          <label className="w-1/4 text-sm font-medium">Parent Category</label>
+          <label className="w-1/4 label">Parent Category</label>
           <Select
             value={categoryOptions.find(
               (option) => option.value === category.parentCategory,
@@ -195,7 +195,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
         </div>
 
         <div className="flex items-center gap-6">
-          <label className="w-1/4 text-sm font-medium">Category Image</label>
+          <label className="w-1/4 label">Category Image</label>
           <div className="w-3/4">
             <div className="flex flex-col space-y-4">
               <div className="flex items-center justify-center w-full">

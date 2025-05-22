@@ -97,7 +97,7 @@ if (loading) return (
   </div>
 );
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark min-h-screen">
       <div className="flex justify-between px-4 py-6 md:px-6 xl:px-7.5">
         <h4 className="text-xl font-semibold text-black dark:text-white">
           Category List
@@ -110,25 +110,25 @@ if (loading) return (
       </div>
 
       <table className="min-w-full divide-y divide-stroke">
-        <thead>
+        <thead className="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th className="px-4 py-2 text-left font-semibold">Category Name</th>
-            <th className="px-4 py-2 text-left font-semibold">Image</th>
-            <th className="px-4 py-2 text-left font-semibold">Description</th>
-            <th className="px-4 py-2 text-left font-semibold">Actions</th>
+            <th className="th">Category Name</th>
+            <th className="th">Image</th>
+            <th className="th">Description</th>
+            <th className="th">Actions</th>
           </tr>
         </thead>
         <tbody>
           {categoryData.map((category) => (
             <tr key={category.slug} className="border-t border-stroke">
-              <td className="px-4 py-2">{category.name}</td>
-              <td className="px-4 py-2">
+              <td className="td">{category.name}</td>
+              <td className="td">
                 {category.image && (
                   <img src={category.image} alt={category.name} className="w-15 h-15" />
                 )}
               </td>
-              <td className="px-4 py-2">{category.description}</td>
-              <td className="px-4 py-2">
+              <td className="td">{category.description}</td>
+              <td className="td">
                 <div className="flex space-x-2">
                   <Link href={`/categories/edit/${category.slug}`}>
                     <button className="text-blue-500 hover:text-blue-600">

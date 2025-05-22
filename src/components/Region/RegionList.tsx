@@ -90,13 +90,13 @@ const RegionList = () => {
     </div>
   );
   return (
-    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark min-h-screen">
       <div className="flex justify-between px-4 py-6 md:px-6 xl:px-7.5">
-        <h4 className="text-xl font-semibold text-black dark:text-white">
+        <h4 className="text-h4">
           Region List
         </h4>
         <Link href="/region/add">
-          <button className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
+          <button className="btn-style">
             Add Region
           </button>
         </Link>
@@ -105,19 +105,19 @@ const RegionList = () => {
       <table className="min-w-full divide-y divide-stroke">
         <thead>
           <tr>
-            <th className="px-4 py-2 text-left font-semibold">Twonship </th>
-            <th className="px-4 py-2 text-left font-semibold">City </th>
+            <th className="th">Twonship </th>
+            <th className="th">City </th>
 
-            <th className="px-4 py-2 text-left font-semibold">Actions</th>
+            <th className="th">Actions</th>
           </tr>
         </thead>
         <tbody>
           {townshipData.map((township) => (
             <tr key={township._id} className="border-t border-stroke">
-              <td className="px-4 py-2">{township.name}</td>
-              <td className="px-4 py-2">{township.cityId.name}</td>
+              <td className="td">{township.name}</td>
+              <td className="td">{township.cityId.name}</td>
 
-              <td className="px-4 py-2">
+              <td className="td">
                 <div className="flex space-x-2">
                   <Link href={`/region/edit?_id=${township._id}`}>
                     <button className="text-blue-500 hover:text-blue-600">
