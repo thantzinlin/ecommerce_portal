@@ -260,17 +260,17 @@ const OrderList = () => {
                 <th className="th">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-600">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
               {orderData.map((order) => (
-                <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                <tr key={order._id} className="border-t border-stroke">
                   <td className="td whitespace-nowrap">
                   {order.orderNumber}
                   </td>
-                  <td className="tdwhitespace-nowrap">
+                  <td className="td whitespace-nowrap">
                     {format(new Date(order.orderDate), 'MMM dd, yyyy HH:mm')}
                   </td>
                   <td className="td">
-                    <div className="text-sm">
+                    <div>
                       <div className="font-medium">{order.customerName}</div>
                       <div className="text-gray-500 text-xs">
                         {order.shippingAddress.city}, {order.shippingAddress.township}
@@ -278,7 +278,7 @@ const OrderList = () => {
                     </div>
                   </td>
                   <td className="td whitespace-nowrap">
-                   <span className="font-medium">${order.totalAmount.toFixed(2)}</span>
+                   <span >{order.totalAmount.toFixed(2)} MMK</span>
                   </td>
                   <td className="td whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPaymentStatusColor(order.paymentStatus)}`}>

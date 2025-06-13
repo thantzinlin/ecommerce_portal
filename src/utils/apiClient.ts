@@ -138,13 +138,14 @@ export async function httpDelete(
 // Error handling function
 export const handleError = (err: any, router: any): void => {
   console.log(err);
-  if (err.status === 401 ) {
-    // const message = err.response.data.returnmessage.toLowerCase();
-    // if (
-    //   message === "invalid token" ||
-    //   message === "token expired" ||
-    //   message === "invalid authorization header format"
-    // ) {
+  try {
+    if (err.status === 401) {
+      // const message = err.response.data.returnmessage.toLowerCase();
+      // if (
+      //   message === "invalid token" ||
+      //   message === "token expired" ||
+      //   message === "invalid authorization header format"
+      // ) {
       localStorage.setItem("token", "");
       router.push("/auth/signin");
       Swal.fire({
@@ -154,7 +155,7 @@ export const handleError = (err: any, router: any): void => {
         icon: "warning",
         timer: 5000,
       });
-    } else if ( err.status === 204 ) {
+    } else if (err.status === 204) {
       Swal.fire({
         icon: "info",
         text: "Data Not Found.",
@@ -164,12 +165,21 @@ export const handleError = (err: any, router: any): void => {
     } else {
       Swal.fire({
         icon: "error",
-        text: err.response.data.returnmessage,
+        text: !err.response.data.returnmessage
+          ? "Something went wrong."
+          : err.response.data.returnmessage,
         showConfirmButton: false,
         timer: 5000,
       });
     }
-
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      text: "UnHandle Exception Occurred.",
+      showConfirmButton: false,
+      timer: 5000,
+    });
+  }
 };
 
 // File upload function

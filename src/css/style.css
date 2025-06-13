@@ -309,5 +309,8 @@ input[type="search"]::-webkit-search-cancel-button {
   @apply text-sm font-medium text-black dark:text-white;
 }
 .btn-style{
-  @apply rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600
+  @apply rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600;
+}
+.select-style{
+@apply text-base text-black dark:text-white bg-white dark:bg-gray-800 border rounded-lg px-4 py-2;
 }

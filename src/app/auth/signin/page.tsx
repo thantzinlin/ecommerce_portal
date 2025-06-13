@@ -1,6 +1,6 @@
 "use client"; // This line marks the component as a Client Component
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { httpPost } from "@/utils/apiClient";
@@ -13,13 +13,22 @@ const SignIn: React.FC = () => {
   const router = useRouter();
   //const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   // const { login } = useAuth(); // Access the login function
 
+  useEffect(() => {
+  const savedPhone = localStorage.getItem("rememberedPhone");
+  if (savedPhone) {
+    setEmail(savedPhone);
+    setRememberMe(true);
+  }
+}, []);
+
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
 
     try {
       const response = await httpPost("auth/login", { phone: email, password });
@@ -56,7 +65,6 @@ const SignIn: React.FC = () => {
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6">
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
         <div className="mb-6 text-center">
-          <Link href="/" passHref>
             <Image
               src="/images/logo/logo.svg"
               alt="Logo"
@@ -71,13 +79,8 @@ const SignIn: React.FC = () => {
               height={30}
               className="mx-auto hidden dark:block"
             />
-          </Link>
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Welcome Back!
-          </h2>
-          <p className="text-sm text-gray-500">
-            Sign in to your account to continue
-          </p>
+        
+         
         </div>
 
         <form className="space-y-5" onSubmit={handleLogin}>
@@ -109,7 +112,12 @@ const SignIn: React.FC = () => {
           </div>
           <div className="flex items-center justify-between">
             <label className="flex items-center">
-              <input type="checkbox" className="form-checkbox" />
+             <input
+                  type="checkbox"
+                  className="form-checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
               <span className="ml-2 text-sm text-gray-600">Remember me</span>
             </label>
             <Link href="/forgot-password" className="text-sm text-blue-500">

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { handleError, httpGet, httpPost, httpPut } from "@/utils/apiClient";
 import toast from 'react-hot-toast';
-import { FaWeight } from "react-icons/fa";
 
 interface ProductAttribute {
   name: string;
@@ -54,7 +53,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
   });
   
 
-  const [ProductVariants, setProductVariants] = useState<ProductVariant[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
@@ -93,34 +91,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ id }) => {
     return skuParts.join('-');
   };
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (!id) return;
-  //     setLoading(true);
   
-  //     try {
-  //       const categoriesResponse = await httpGet("categories");
-  //       setCategories(categoriesResponse.data.data);
-  
-  //       const productResponse = await httpGet(`products/${id}`);
-  //       if (productResponse.data.returncode === "200") {
-  //        setProduct(productResponse.data.data);
-          
-
-  //       } else {
-  //         console.error("Failed to load product", productResponse.data.message);
-  //         handleError(productResponse.data, router);
-  //       }
-  //     } catch (err) {
-  //       console.error("Error fetching data:", err);
-  //       handleError(err, router);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  
-  //   fetchData();
-  // }, [id]); // Runs when `id` changes
 
   useEffect(() => {
     const fetchData = async () => {
