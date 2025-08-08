@@ -14,48 +14,65 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ slug }) => {
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [tab, setTab] = useState<"automatic" | "promo">("automatic");
 
   const router = useRouter();
 
-  const [form, setForm] = useState({
-    _id: "",
-    name: "",
-    discountType: "percentage",
-    value: "",
-    targets: [] as string[],
-    startDate: "",
-    endDate: "",
-    minPurchase: "",
-    usageLimit: "",
-    promoCode: "",
-  });
+  
+const [form, setForm] = useState<{
+  _id: string | null;
+  name: string;
+  discountType: string;
+  value: string;
+  targets: string[];
+  startDate: string;
+  endDate: string;
+  minPurchase: string;
+  usageLimit: string;
+  cuponCode: string;
+  isPublic: boolean;
+}>({
+  _id: null,
+  name: "",
+  discountType: "percentage",
+  value: "",
+  targets: [],
+  startDate: "",
+  endDate: "",
+  minPurchase: "",
+  usageLimit: "",
+  cuponCode: "",
+  isPublic: true,
+});
+
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-
         if (slug) {
           const response = await httpGet(`discounts/${slug}`);
           if (response.data.returncode === "200") {
             const resData = response.data.data;
 
-          if (resData.startDate) {
-            resData.startDate = new Date(resData.startDate).toISOString().split("T")[0];
-          }
-          if (resData.endDate) {
-            resData.endDate = new Date(resData.endDate).toISOString().split("T")[0];
-          }
+            if (resData.startDate) {
+              resData.startDate = new Date(resData.startDate)
+                .toISOString()
+                .split("T")[0];
+            }
+            if (resData.endDate) {
+              resData.endDate = new Date(resData.endDate)
+                .toISOString()
+                .split("T")[0];
+            }
 
-          setForm(resData);
+            setForm(resData);
+            setTab(resData.cuponCode ? "promo" : "automatic");
           }
         }
 
         const resproduct = await httpGet("products");
-        const productList = resproduct.data.data;
-
-        setProducts(productList);
-      
+        setProducts(resproduct.data.data);
       } catch (err) {
         handleError(err, router);
       } finally {
@@ -65,6 +82,19 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ slug }) => {
 
     fetchData();
   }, []);
+
+
+  useEffect(() => {
+  setForm((prev) => ({
+    ...prev,
+    isPublic: tab === "automatic",
+    cuponCode: tab === "automatic" ? "" : prev.cuponCode,
+    usageLimit: tab === "automatic" ? "" : prev.usageLimit,
+    minPurchase: tab === "automatic" ? "" : prev.minPurchase,
+    targets: tab === "promo" ? [] : prev.targets
+  }));
+}, [tab]);
+
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -77,6 +107,9 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ slug }) => {
         (opt) => opt.value
       );
       setForm((prev) => ({ ...prev, [name]: values }));
+    } else if (type === "checkbox") {
+      const input = e.target as HTMLInputElement;
+      setForm((prev) => ({ ...prev, [name]: input.checked }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -87,17 +120,7 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ slug }) => {
     setLoading(true);
 
     try {
-      const data = {
-        name: form.name,
-        discountType: form.discountType,
-        value: form.value,
-        startDate: form.startDate,
-        endDate: form.endDate,
-        minPurchase: form.minPurchase,
-        usageLimit: form.usageLimit,
-        promoCode: form.promoCode,
-        targets: form.targets,
-      };
+      const data = { ...form };
 
       const response = slug
         ? await httpPut(`discounts/${form._id}`, data)
@@ -124,72 +147,89 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ slug }) => {
       <h4 className="mb-6 text-center text-h4">
         {slug ? "Edit Discount" : "New Discount"}
       </h4>
+
+      {/* Tabs */}
+      <div className="flex mb-4">
+        <button
+          type="button"
+          onClick={() => setTab("automatic")}
+          className={`px-4 py-2 rounded-t-lg ${
+            tab === "automatic" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Automatic Discount
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab("promo")}
+          className={`px-4 py-2 rounded-t-lg ${
+            tab === "promo" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Promo Code Discount
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name */}
+        {/* Common Fields */}
         <div className="flex items-center gap-4">
-          <label className="w-1/4 label">
-            Name<span className="text-red-500 ml-1">*</span>
-          </label>
+          <label className="w-1/4 label">Name<span className="text-red-500 ml-1">*</span></label>
           <input
             type="text"
             name="name"
             value={form.name}
             onChange={handleChange}
             required
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
+            className="w-3/4 text-input"
           />
         </div>
 
-        {/* Type */}
         <div className="flex items-center gap-4">
-          <label className="w-1/4 label">
-            Type<span className="text-red-500 ml-1">*</span>
-          </label>
+          <label className="w-1/4 label">Type <span className="text-red-500 ml-1">*</span></label>
           <select
             name="discountType"
             value={form.discountType}
             onChange={handleChange}
-            className={`w-3/4 rounded-lg border ${
-              errors.discountType ? "border-red-500" : "border-gray-300"
-            } px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring`}
+            required
+            className="w-3/4 text-input"
           >
             <option value="percentage">Percentage (%)</option>
             <option value="fixed">Fixed (MMK)</option>
           </select>
         </div>
 
-        {/* Discount Value */}
         <div className="flex items-center gap-4">
-          <label className="w-1/4 label">Discount Value</label>
+          <label className="w-1/4 label">Discount Value<span className="text-red-500 ml-1">*</span></label>
           <input
             type="number"
             name="value"
+            min={0}
             value={form.value}
             onChange={handleChange}
             required
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
+            className="w-3/4 text-input"
           />
         </div>
 
-        {/* Select Products */}
-        <div className="flex items-start gap-4">
-          <label className="w-1/4 label">Select Products</label>
-          <select
-            name="targets"
-            multiple
-            value={form.targets}
-            onChange={handleChange}
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring h-32"
-          >
-            {products.map((product) => (
-              <option key={product._id} value={product._id}>
-                {product.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {tab === "automatic" && (
+          <div className="flex items-start gap-4">
+            <label className="w-1/4 label">Select Products</label>
+            <select
+              name="targets"
+              multiple
+              value={form.targets}
+              onChange={handleChange}
+              className="w-3/4 text-input"
+            >
+              {products.map((product) => (
+                <option key={product._id} value={product._id}>
+                  {product.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-        {/* Date Range */}
         <div className="flex items-center gap-4">
           <label className="w-1/4 label">Start Date</label>
           <input
@@ -197,9 +237,10 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ slug }) => {
             name="startDate"
             value={form.startDate}
             onChange={handleChange}
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
+            className="w-3/4 text-input"
           />
         </div>
+
         <div className="flex items-center gap-4">
           <label className="w-1/4 label">End Date</label>
           <input
@@ -207,49 +248,51 @@ const DiscountForm: React.FC<DiscountFormProps> = ({ slug }) => {
             name="endDate"
             value={form.endDate}
             onChange={handleChange}
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
+            className="w-3/4 text-input"
           />
         </div>
 
-        {/* Minimum Purchase */}
-        <div className="flex items-center gap-4">
-          <label className="w-1/4 label">Minimum Purchase (MMK)</label>
-          <input
-            type="number"
-            name="minPurchase"
-            min={0}
-            value={form.minPurchase}
-            onChange={handleChange}
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
-          />
-        </div>
+        {/* Promo Code Fields */}
+        {tab === "promo" && (
+          <>
+            <div className="flex items-center gap-4">
+              <label className="w-1/4 label">Minimum Purchase (MMK)</label>
+              <input
+                type="number"
+                name="minPurchase"
+                value={form.minPurchase}
+                min={0}
+                onChange={handleChange}
+                className="w-3/4 text-input"
+              />
+            </div>
 
-        {/* Usage Limit */}
-        <div className="flex items-center gap-4">
-          <label className="w-1/4 label">Usage Limit</label>
-          <input
-            type="number"
-            name="usageLimit"
-            min={0}
-            value={form.usageLimit}
-            onChange={handleChange}
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
-          />
-        </div>
+            <div className="flex items-center gap-4">
+              <label className="w-1/4 label">Usage Limit</label>
+              <input
+                type="number"
+                name="usageLimit"
+                value={form.usageLimit}
+                min={0}
+                onChange={handleChange}
+                className="w-3/4 text-input"
+              />
+            </div>
 
-        {/* Promo Code */}
-        <div className="flex items-center gap-4">
-          <label className="w-1/4 label">Promo Code</label>
-          <input
-            type="text"
-            name="promoCode"
-            value={form.promoCode}
-            onChange={handleChange}
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
-          />
-        </div>
+            <div className="flex items-center gap-4">
+              <label className="w-1/4 label">Promo Code<span className="text-red-500 ml-1">*</span></label>
+              <input
+                type="text"
+                name="cuponCode"
+                value={form.cuponCode}
+                onChange={handleChange}
+                required
+                className="w-3/4 text-input"
+              />
+            </div>
+          </>
+        )}
 
-        {/* Submit Button */}
         <div className="text-center">
           <button
             type="submit"

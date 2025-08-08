@@ -18,7 +18,7 @@ interface Discount {
   endDate: string;
   minimumPurchase: number;
   usageLimit: number;
-  promoCode: string;
+  cuponCode: string;
 
 }
 
@@ -137,7 +137,7 @@ if (loading) return (
               <td className="td"> {format(new Date(discount.endDate), 'MM/dd/ yyyy')}</td>
               <td className="td">{discount.minimumPurchase}</td>
               <td className="td">{discount.usageLimit}</td>
-              <td className="td">{discount.promoCode}</td>
+              <td className="td">{discount.cuponCode}</td>
 
               <td className="td">
                 <div className="flex space-x-2">

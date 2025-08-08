@@ -159,7 +159,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
       {/* Shipping and Payment Info */}
       <div className="flex justify-between border-t pt-4">
         <div className="text-left">
-          <p className="text-p">
+          <span className="text-p">
             Shipping Address:{" "}
             {order.shippingAddress && (
               <>
@@ -170,7 +170,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId }) => {
                 <p>{order.shippingAddress.postalCode}</p>
               </>
             )}
-          </p>
+          </span>
           <p className="text-p">Payment Method: {order.paymentMethod}</p>
           <p className="text-p">Order Date: {order.orderDate}</p>
         </div>

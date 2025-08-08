@@ -164,7 +164,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
             value={category.name}
             onChange={handleChange}
             required
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
+            className="text-input w-3/4"
           />
         </div>
 
@@ -174,7 +174,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ slug }) => {
             name="description"
             value={category.description}
             onChange={handleChange}
-            className="w-3/4 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring"
+            className="w-3/4 text-input"
           />
         </div>
 
