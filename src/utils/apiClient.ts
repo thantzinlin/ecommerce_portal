@@ -140,12 +140,6 @@ export const handleError = (err: any, router: any): void => {
   console.log(err);
   try {
     if (err.status === 401) {
-      // const message = err.response.data.returnmessage.toLowerCase();
-      // if (
-      //   message === "invalid token" ||
-      //   message === "token expired" ||
-      //   message === "invalid authorization header format"
-      // ) {
       localStorage.setItem("token", "");
       router.push("/auth/signin");
       Swal.fire({
@@ -153,6 +147,15 @@ export const handleError = (err: any, router: any): void => {
         text: "Your session has ended due to inactivity. For your security, we've logged you out. Please log in again to continue.",
         showConfirmButton: false,
         icon: "warning",
+        timer: 5000,
+      });
+    } else if (err.status === 403) {
+      localStorage.setItem("token", "");
+      router.push("/auth/signin");
+      Swal.fire({
+        icon: "error",
+        text: "You don't have permission to access this resource.",
+        showConfirmButton: false,
         timer: 5000,
       });
     } else if (err.status === 204) {
